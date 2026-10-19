@@ -1,0 +1,54 @@
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONUTF8: '1'
+      QUICKSPEAK_SKIP_HARDWARE_TESTS: '1'
+      QUICKSPEAK_HOME: ${{ github.workspace }}\.ci-data
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.9'
+          architecture: x64
+      - name: Install into a clean environment and download model
+        run: ./setup.ps1 -Python (Get-Command python).Source
+      - name: Verify all voices and offline loading
+        run: |
+          & ./.runtime/Scripts/python.exe tools/verify_model.py
+          if ($LASTEXITCODE -ne 0) { throw 'Model verification failed' }
+      - name: Test and build windowed executable
+        run: ./build.ps1 -SkipHardwareTests
+      - name: Run packaged synthesis offline without audio hardware
+        run: |
+          $env:HF_HUB_OFFLINE = '1'
+          $exe = Join-Path $PWD 'dist/QuickSpeak/QuickSpeak.exe'
+          $report = Join-Path $PWD 'artifacts/ci-packaged.json'
+          $wav = Join-Path $PWD 'artifacts/ci-sample.wav'
+          $process = Start-Process -FilePath $exe -ArgumentList @('--self-test', '--no-audio', '--report', "`"$report`"", '--wav', "`"$wav`"") -WorkingDirectory $env:TEMP -WindowStyle Hidden -PassThru
+          if (-not $process.WaitForExit(120000)) { $process.Kill(); throw 'Packaged smoke test timed out' }
+          if (-not (Test-Path $report)) { throw 'Packaged test produced no report' }
+          $result = Get-Content $report -Raw | ConvertFrom-Json
+          if ($result.status -ne 'passed' -or -not $result.frozen -or $result.torch_imported) { throw 'Packaged smoke test failed' }
+          $result | ConvertTo-Json -Depth 5
+      # CI verifies packaging but does not publish binary distributions.
+      # See docs/BUILDING.md before making an executable release.

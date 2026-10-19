@@ -1,0 +1,31 @@
+name: Bug report
+description: Report a reproducible QuickSpeak problem
+body:
+  - type: markdown
+    attributes:
+      value: "Use harmless example text. Do not paste private clipboard contents, credentials or personal file paths."
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Windows version, Python version, source commit or app version
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the source application and a synthetic example passage.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Error message or test result
+      description: Remove any sensitive details before posting.
