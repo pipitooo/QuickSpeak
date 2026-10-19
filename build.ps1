@@ -4,6 +4,10 @@ Set-Location $PSScriptRoot
 $env:PYTHONUTF8 = '1'
 $python = Join-Path $PSScriptRoot '.runtime\Scripts\python.exe'
 if (-not (Test-Path $python)) { throw 'Run setup.ps1 first.' }
+$outputExe = Join-Path $PSScriptRoot 'dist\QuickSpeak\QuickSpeak.exe'
+if (Get-Process QuickSpeak -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $outputExe }) {
+    throw 'Exit the built QuickSpeak app from its tray menu before rebuilding.'
+}
 & $python -m pip install -r requirements-build.txt
 if ($LASTEXITCODE -ne 0) { throw 'Build dependency installation failed.' }
 & $python tools\patch_kitten.py

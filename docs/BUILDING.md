@@ -12,6 +12,8 @@ runs tests, and creates dist\QuickSpeak\QuickSpeak.exe. Keep the entire folder,
 including _internal and licenses. The EXE needs no separate Python installation,
 but needs the [model](MODELS.md). It is unsigned.
 
+Exit any running copy of the built app before rebuilding; Windows locks its EXE.
+
 On a runner without desktop/audio hardware, use build.ps1 -SkipHardwareTests.
 This skips only native hotkey registration and physical playback tests.
 
