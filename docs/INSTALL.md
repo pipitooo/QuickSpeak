@@ -69,6 +69,7 @@ model is public and the app explicitly downloads without an account token.
 ## Everyday use
 
 - Ctrl+Alt+R reads the current selection. A new passage replaces the old one.
+- Ctrl+Alt+I pauses the current reading; press it again to resume. Both shortcuts are configurable in settings and must be different.
 - An empty selection stops reading and shows a small notification.
 - Read Clipboard explicitly reads existing copied text if selection capture fails.
 - The manual text box is useful for unsupported applications.

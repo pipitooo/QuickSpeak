@@ -13,7 +13,7 @@ Use Windows x64 and Python 3.11. Clone your fork, run `setup.ps1`, then
 ```
 
 The second command requires the model files. On a headless runner, set
-`QUICKSPEAK_SKIP_HARDWARE_TESTS=1`; the two hardware-dependent tests will be marked
+`QUICKSPEAK_SKIP_HARDWARE_TESTS=1`; the three hardware-dependent tests will be marked
 skipped, not passed. Clear it before claiming desktop/audio testing.
 
 ## Design constraints
