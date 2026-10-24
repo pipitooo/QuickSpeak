@@ -6,8 +6,8 @@ class Window:
     def __init__(self, root, app):
         self.root, self.app = root, app
         root.title('QuickSpeak')
-        root.geometry('540x600')
-        root.minsize(460, 580)
+        root.geometry('540x640')
+        root.minsize(460, 620)
         from PIL import ImageTk
         from .tray import icon_image
         self.icon = ImageTk.PhotoImage(icon_image())
@@ -35,6 +35,7 @@ class Window:
         self.speed = tk.DoubleVar(value=app.settings.speed)
         self.volume = tk.DoubleVar(value=app.settings.volume)
         self.shortcut = tk.StringVar(value=app.settings.shortcut)
+        self.pause_shortcut = tk.StringVar(value=app.settings.pause_shortcut)
         self.startup = tk.BooleanVar(value=startup_enabled())
         ttk.Label(controls, text='Voice').grid(row=0, column=0, sticky='w', padx=(0, 16), pady=5)
         voice = ttk.Combobox(controls, values=VOICES, textvariable=self.voice, state='readonly')
@@ -48,8 +49,10 @@ class Window:
         self.volume_label = ttk.Label(controls, width=6)
         self.volume_label.grid(row=2, column=2)
         ttk.Scale(controls, from_=0, to=1, variable=self.volume, command=lambda _: self.live_preferences()).grid(row=2, column=1, sticky='ew')
-        ttk.Label(controls, text='Shortcut').grid(row=3, column=0, sticky='w', pady=5)
+        ttk.Label(controls, text='Read shortcut').grid(row=3, column=0, sticky='w', pady=5)
         ttk.Entry(controls, textvariable=self.shortcut).grid(row=3, column=1, sticky='ew')
+        ttk.Label(controls, text='Pause / Resume').grid(row=4, column=0, sticky='w', pady=5)
+        ttk.Entry(controls, textvariable=self.pause_shortcut).grid(row=4, column=1, sticky='ew')
         ttk.Checkbutton(frame, text='Launch QuickSpeak when I sign in', variable=self.startup).pack(anchor='w', pady=(10, 5))
         bottom = ttk.Frame(frame)
         bottom.pack(fill='x')
@@ -70,17 +73,25 @@ class Window:
 
     def save(self):
         old_shortcut = self.app.settings.shortcut
+        old_pause_shortcut = self.app.settings.pause_shortcut
         old_startup = startup_enabled()
         try:
+            from .hotkeys import parse_shortcut
+            if parse_shortcut(self.shortcut.get()) == parse_shortcut(self.pause_shortcut.get()):
+                raise ValueError('Read and Pause / Resume must use different shortcuts.')
             self.app.hotkey.set(self.shortcut.get())
+            self.app.pause_hotkey.set(self.pause_shortcut.get())
             set_startup(self.startup.get())
             self.app.settings.shortcut = self.shortcut.get()
+            self.app.settings.pause_shortcut = self.pause_shortcut.get()
             self.app.settings.save()
             self.app.set_status('Settings saved')
         except Exception as exc:
             self.app.settings.shortcut = old_shortcut
+            self.app.settings.pause_shortcut = old_pause_shortcut
             try:
                 self.app.hotkey.set(old_shortcut)
+                self.app.pause_hotkey.set(old_pause_shortcut)
                 if startup_enabled() != old_startup:
                     set_startup(old_startup)
             except Exception:

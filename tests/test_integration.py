@@ -28,6 +28,18 @@ class WindowsTests(unittest.TestCase):
             Path(directory, 'settings.json').write_text('{"speed":20}', 'utf-8')
             self.assertEqual(Settings.load(), Settings())
 
+    def test_existing_settings_gain_pause_shortcut_and_preserve_preferences(self):
+        from quickspeak.settings import Settings
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, QUICKSPEAK_HOME=directory):
+            Path(directory, 'settings.json').write_text('{"voice":"Luna","shortcut":"Ctrl+Shift+F8"}', 'utf-8')
+            settings = Settings.load()
+            self.assertEqual(settings.voice, 'Luna')
+            self.assertEqual(settings.shortcut, 'Ctrl+Shift+F8')
+            self.assertEqual(settings.pause_shortcut, 'Ctrl+Alt+I')
+            settings.pause_shortcut = 'Ctrl+Shift+F9'
+            settings.save()
+            self.assertEqual(Settings.load(), settings)
+
     def test_audio_error_is_reported(self):
         import numpy as np
         from quickspeak.audio import AudioPlayer

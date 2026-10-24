@@ -22,7 +22,7 @@ $env:QUICKSPEAK_SKIP_HARDWARE_TESTS = '1'
 Remove-Item Env:QUICKSPEAK_SKIP_HARDWARE_TESTS
 ```
 
-Two of ten tests are skipped in that mode. CI uses it, verifies the model and
+Three of thirteen tests are skipped in that mode. CI uses it, verifies the model and
 tests synthesis in the built EXE. CI does not establish physical playback,
 clipboard behavior in other apps, startup-at-login or visual usability.
 
@@ -33,6 +33,11 @@ replace a long reading, then test Stop, Pause/Resume, voice/speed/volume and emp
 selection. Check clipboard restoration during fallback. Test the manual text box,
 close-to-tray and Exit. Check a second launch does not create another instance.
 Test launch-at-login separately only when intending to change that preference.
+
+While another app has focus, press Ctrl+Alt+I twice to pause then resume the same
+reading. While idle it does nothing. Change either shortcut in settings, save,
+and restart to check persistence. Conflicting shortcuts must show an error and
+keep the previous working bindings.
 
 Original Windows 11 checks covered Notepad/Opera, Unicode, UI Automation and
 fallback, synthetic text/HTML/RTF restoration, source UI and packaged offline

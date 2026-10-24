@@ -19,6 +19,7 @@ class Settings:
     speed: float = 1.0
     volume: float = 0.8
     shortcut: str = 'Ctrl+Alt+R'
+    pause_shortcut: str = 'Ctrl+Alt+I'
 
     @classmethod
     def load(cls):
@@ -29,6 +30,7 @@ class Settings:
                 raise ValueError('Invalid settings')
             from .hotkeys import parse_shortcut
             parse_shortcut(s.shortcut)
+            parse_shortcut(s.pause_shortcut)
             return s
         except (OSError, ValueError, TypeError, AttributeError):
             return cls()

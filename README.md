@@ -44,7 +44,8 @@ Double-click **`start.cmd`**. QuickSpeak starts in the system tray without a ter
 
 1. Select text in Notepad or a browser.
 2. Press **Ctrl+Alt+R**, then release the keys.
-3. To stop, choose **Stop Reading** from the tray menu or click **Stop** in the window.
+3. Press **Ctrl+Alt+I** to pause; press it again to resume from the same position.
+4. To stop, choose **Stop Reading** from the tray menu or click **Stop** in the window.
 
 Double-click the tray icon for the manual text box, voice, speed, volume, pause/resume, shortcut and startup settings. Launch at login is **off by default**. Closing the window hides it; **Exit** quits.
 
@@ -65,6 +66,7 @@ They are stored in **`%LOCALAPPDATA%\QuickSpeak\model`**. The model revision and
 ## Features
 
 - Global, customizable Windows shortcut; default **Ctrl+Alt+R**.
+- Global, customizable pause/resume shortcut; default **Ctrl+Alt+I**. Both shortcuts can be changed in settings and must be different.
 - UI Automation selection capture first; conservative Ctrl+C fallback.
 - Background model loading, sentence-chunked speech and bounded audio buffering.
 - Stop, pause/resume, and replacement of the current reading.

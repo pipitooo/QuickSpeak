@@ -40,6 +40,7 @@ class App:
         self.audio = AudioPlayer(self.status, self.audio_error, lambda gen: self.dispatch(lambda: self.finished(gen)))
         self.audio.volume = self.settings.volume
         self.hotkey = Hotkey(lambda hwnd: self.dispatch(lambda: self.capture(hwnd)))
+        self.pause_hotkey = Hotkey(lambda hwnd: self.dispatch(self.pause))
         self.window = Window(self.root, self)
         self.tray = Tray(self.dispatch, self.clipboard, self.window.show, self.stop, self.close)
         self.engine = SpeechEngine(self.audio, self.status, self.error)
@@ -47,6 +48,11 @@ class App:
             self.hotkey.set(self.settings.shortcut)
         except Exception as exc:
             self.error(str(exc))
+            show = True
+        try:
+            self.pause_hotkey.set(self.settings.pause_shortcut)
+        except Exception as exc:
+            self.error(f'Pause/resume shortcut: {exc}')
             show = True
         if show:
             self.window.show()
@@ -138,6 +144,7 @@ class App:
         self.closing = True
         self.root.withdraw()
         self.hotkey.close()
+        self.pause_hotkey.close()
         self.engine.close()
         if self.capture_thread:
             self.capture_thread.join(4)

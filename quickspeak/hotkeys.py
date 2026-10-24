@@ -54,7 +54,8 @@ class Hotkey:
                         user32.UnregisterHotKey(None, slot)
                     event.set()
                     break
-                if value == self.current:
+                if self.current and parse_shortcut(value) == parse_shortcut(self.current):
+                    self.current = value
                     event.set()
                     continue
                 mods, vk = parse_shortcut(value)

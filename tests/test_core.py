@@ -71,6 +71,43 @@ class CoreTests(unittest.TestCase):
             engine.close()
         self.assertFalse(engine.worker.is_alive())
 
+    def test_pause_toggle_only_affects_active_reading(self):
+        from types import SimpleNamespace
+        from quickspeak.app import App
+        from quickspeak.audio import AudioPlayer
+        audio = AudioPlayer()
+        app = SimpleNamespace(engine=SimpleNamespace(active=False), audio=audio)
+        try:
+            App.pause(app)
+            self.assertFalse(audio.paused)
+            app.engine.active = True
+            App.pause(app)
+            self.assertTrue(audio.paused)
+            App.pause(app)
+            self.assertFalse(audio.paused)
+        finally:
+            audio.close()
+
+    @unittest.skipIf(os.environ.get('QUICKSPEAK_SKIP_HARDWARE_TESTS') == '1', 'Requires an interactive Windows desktop')
+    def test_read_and_pause_listeners_dispatch_independently(self):
+        from quickspeak.hotkeys import user32
+        read, pause = threading.Event(), threading.Event()
+        a, b = Hotkey(lambda hwnd: read.set()), Hotkey(lambda hwnd: pause.set())
+        try:
+            a.set('Ctrl+Alt+Shift+F11')
+            b.set('Ctrl+Alt+Shift+F10')
+            b.set('Alt+Ctrl+Shift+F10')
+            user32.PostThreadMessageW(b.tid, 0x0312, 2, 0)
+            self.assertTrue(pause.wait(2))
+            self.assertFalse(read.is_set())
+            user32.PostThreadMessageW(a.tid, 0x0312, 2, 0)
+            self.assertTrue(read.wait(2))
+        finally:
+            a.close()
+            b.close()
+        self.assertFalse(a.thread.is_alive())
+        self.assertFalse(b.thread.is_alive())
+
     def test_stale_clipboard_is_never_read(self):
         from quickspeak import selection as s
         with patch.object(s, 'snapshot_clipboard', return_value=([], 42)), \
